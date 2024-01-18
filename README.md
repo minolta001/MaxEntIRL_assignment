@@ -81,7 +81,7 @@ The special terminal state (25) has all zero state features.
 
 ## Answer the following questions:
 
-<strong>You will need to type up your responses to the following parts of the homework (preferably typeset in LaTeX) and submit your responses and code via Canvas. You are encouraged to talk about the homework with other students and share resources, but please do not share or copy code. </strong>
+<strong>You will need to type up your responses to the following parts of the homework (preferably typeset in LaTeX) and submit your responses and code via Gradescope. You are encouraged to talk about the homework with other students and share resources, but please do not share or copy code. </strong>
 
 1. Use a principled or well-justified method to choose a static step size / learning rate for gradient descent (i.e. a scalar value to multiply the gradient by, in order to decide on the magnitude of the weight update at each epoch). Describe how you chose an appropriate learning rate. 
 
@@ -96,5 +96,5 @@ The special terminal state (25) has all zero state features.
 5. Why is $Z_s$ set to one for the terminal state?  What is interpretation of this in terms of both 1) total probability of trajectories that end at the terminal state and 2) the reward gained for being in a terminal state? (hint: think of the equation for $Z_{a_{ij}}$ as a state-action value function)
 
 ## Submission
-Prepare a PDF report with your answers to the questions (preferably typeset in LaTeX) and submit the PDF along with your code in a zip file. Submit via Canvas.
+Prepare a PDF report with your answers to the questions (preferably typeset in LaTeX) and submit the PDF along with your code in a zip file. Submit via Gradescope.
 
