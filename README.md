@@ -83,7 +83,7 @@ The special terminal state (25) has all zero state features.
 
 <strong>You will need to type up your responses to the following parts of the homework (preferably typeset in LaTeX) and submit your responses and code via Gradescope. You are encouraged to talk about the homework with other students and share resources, but please do not share or copy code. </strong>
 
-1. Use a principled or well-justified method to choose a static step size / learning rate for gradient descent (i.e. a scalar value to multiply the gradient by, in order to decide on the magnitude of the weight update at each epoch). Describe how you chose an appropriate learning rate. 
+1. Come up with a way to choose a good static step size / learning rate for gradient descent (i.e. a scalar value to multiply the gradient by, in order to decide on the magnitude of the weight update at each epoch). Describe how you chose an appropriate learning rate, and justify your approach. 
 
 2. Run MaxEntIRL for 100 epochs with a horizon of 15 and describe the shape of the reward function.  What does it appear to be trying to do, qualitatively, and why?  Do you think it treats state 12 in a sensible way based on the given demostrations, and might it be wrong (with respect to the ground truth reward function that generated the given optimal demonstrations)? Include a graph of the reward function in your writeup.
 
@@ -93,7 +93,7 @@ The special terminal state (25) has all zero state features.
 
 5. Explain in your own words what $Z_{a_{ij}}$ and $Z_{s_i}$ represent over a particular horizon.
 
-5. Why is $Z_s$ set to one for the terminal state?  What is interpretation of this in terms of both 1) total probability of trajectories that end at the terminal state and 2) the reward gained for being in a terminal state? (hint: think of the equation for $Z_{a_{ij}}$ as a state-action value function)
+5. Why is 1 added to $Z_s$ for terminal states?  (hint: think of the equation for $Z_{s}$ in terms of returns of trajectories)
 
 ## Submission
 Prepare a PDF report with your answers to the questions (preferably typeset in LaTeX) and submit the PDF along with your code in a zip file. Submit via Gradescope.
