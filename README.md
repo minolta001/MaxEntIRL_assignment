@@ -5,8 +5,11 @@
 In this assignment, you will be implementing maximum entropy inverse reinforcement learning, as described by Ziebart et al. (2008) in``Maximum Entropy Inverse Reinforcement Learning".
 
 **NOTE: There are two typos in Algorithm 1 of that paper:**
-- In step 4, it should be D_{s_i, 1} = ... (rather than D_{s_i, t})
-- In step 5, it should be D_{s_i, t+1} = sum_{a_ij} sum_k D{s_k, t} p(a_kj | s_k) p(s_i | a_kj, sk)
+- In step 4, instead of D(s_i, t), it should be: 
+  - ![image](https://github.com/sniekum/MaxEntIRL_assignment/assets/1664131/e7c49e02-84b1-4229-b6b4-9b27812aedb6)
+
+- In step 5, it should be:
+  - ![image](https://github.com/sniekum/MaxEntIRL_assignment/assets/1664131/978ffc22-f707-490e-a754-fb340a916908)
   - In other words, the probability of a state s_i at the next timestep is based on how often you started in all the states s_k that you could have come from, multiplied by the appropriate action and transition probabilities that would have taken you from s_k to s_i
 
 Your task is to write three functions, as specified in the provided file.  The three functions are:
