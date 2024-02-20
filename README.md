@@ -69,7 +69,7 @@ The transition matrix for a 5x5 gridworld domain is provided in the Python start
 ```
 
 
-0 is the start state and 24 is a special goal state that always transitions to a special terminal state, 25.  There are 4 actions: up, down, left, and right, which move the agent accordingly (and deterministically), unless the agent would move past the edge of the world, in which it stays in place.  All actions at state 24 lead to state 25 deterministically.  All actions at state 25 lead to each possible next state with probability zero, making it terminal. 
+24 is a goal state that always transitions to a special terminal state, 25.  There are 4 actions: up, down, left, and right, which move the agent accordingly (and deterministically), unless the agent would move past the edge of the world, in which it stays in place.  All actions at state 24 lead to state 25 deterministically.  All actions at state 25 lead to each possible next state with probability zero, making it terminal. 
 
 There are 4 features and only one is active at any given state, represented 1-hot vector at each state, with the layout as follows:
 ```
@@ -91,7 +91,7 @@ The special terminal state (25) has all zero state features.
 
 <strong>You will need to type up your responses to the following parts of the homework (preferably typeset in LaTeX) and submit your responses and code via Gradescope. You are encouraged to talk about the homework with other students and share resources, but please do not share or copy code. </strong>
 
-1. Come up with a way to choose a good static step size / learning rate for gradient descent (i.e. a scalar value to multiply the gradient by, in order to decide on the magnitude of the weight update at each epoch). Describe how you chose an appropriate learning rate, and justify your approach. 
+1. Experiment and choose a good static step size / learning rate for gradient descent (i.e. a scalar value to multiply the gradient by, in order to decide on the magnitude of the weight update at each iteration). Describe how you chose an appropriate learning rate. 
 
 2. Run MaxEntIRL for 100 epochs with a horizon of 15 and describe the shape of the reward function.  What does it appear to be trying to do, qualitatively, and why?  Do you think it treats state 12 in a sensible way based on the given demostrations, and might it be wrong (with respect to the ground truth reward function that generated the given optimal demonstrations)? Include a graph of the reward function in your writeup.
 
