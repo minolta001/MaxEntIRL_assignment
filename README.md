@@ -4,6 +4,10 @@
 
 In this assignment, you will be implementing maximum entropy inverse reinforcement learning, as described by Ziebart et al. (2008) in``Maximum Entropy Inverse Reinforcement Learning".
 
+NOTE: There are two typos in Algorithm 1 of that paper:
+- In step 4, it should be D_{s_i, 0} = ... (rather than D_{s_i, t})
+- In step 5, it should be D_{s_i, t+1} = sum_{a_ij} sum_k D{s_k, t} p(a_kj | s_k) p(s_i | a_kj, sk)
+
 Your task is to write three functions, as specified in the provided file.  The three functions are:
 
 1. **calcMaxEntPolicy(trans\_mat, horizon, r\_weights, state\_features):**
