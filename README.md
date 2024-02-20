@@ -5,7 +5,7 @@
 In this assignment, you will be implementing maximum entropy inverse reinforcement learning, as described by Ziebart et al. (2008) in``Maximum Entropy Inverse Reinforcement Learning".
 
 **NOTE: There are two typos in Algorithm 1 of that paper:**
-- In step 4, instead of D(s_i, t), it should be: 
+- In step 4, instead of D_{s_i, t}, it should be: 
   - ![image](https://github.com/sniekum/MaxEntIRL_assignment/assets/1664131/e7c49e02-84b1-4229-b6b4-9b27812aedb6)
 
 - In step 5, it should be:
