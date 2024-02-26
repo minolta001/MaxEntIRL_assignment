@@ -4,6 +4,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import math
+from itertools import product
 
         
 def build_trans_mat_gridworld():
@@ -109,9 +110,27 @@ def calcMaxEntPolicy(trans_mat, horizon, r_weights, state_features, term_index):
   
   return: an S x A policy in which each entry is the probability of taking action a in state s
   """
-  n_states = np.shape(trans_mat)[0]
-  n_actions = np.shape(trans_mat)[1]
-  policy = np.zeros((n_states,n_actions))  
+  n_states = np.shape(trans_mat)[0] # num of states
+  n_actions = np.shape(trans_mat)[1]  # num of actions
+  policy = np.zeros((n_states,n_actions)) 
+
+  non_terminal_set = set(range(n_states)) - set(term_index)
+
+  zs = np.zeros(n_states)
+  zs[term_index] = 1.0
+
+  for _ in range (2 * n_states):
+    za = np.zeros((n_states, n_actions))
+
+    s_a_pair = product(range(n_states), range(n_actions)) 
+    for s, a in s_a_pair:
+      for s_end in range(n_states):
+        reward = r_weights.transpose() @ state_features[s]
+        za[s, a] += trans_mat[s, a, s_end] * np.exp(reward) * zs[s_end]
+      zs = za.sum(axis=1)
+    
+  policy = 
+
   return policy
 
 
