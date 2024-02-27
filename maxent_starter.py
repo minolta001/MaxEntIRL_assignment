@@ -114,22 +114,21 @@ def calcMaxEntPolicy(trans_mat, horizon, r_weights, state_features, term_index):
   n_actions = np.shape(trans_mat)[1]  # num of actions
   policy = np.zeros((n_states,n_actions)) 
 
-  non_terminal_set = set(range(n_states)) - set(term_index)
-
   zs = np.zeros(n_states)
   zs[term_index] = 1.0
 
-  for _ in range (2 * n_states):
+  s_a_pair = product(range(n_states), range(n_actions)) 
+
+  for _ in range (horizon):
     za = np.zeros((n_states, n_actions))
 
-    s_a_pair = product(range(n_states), range(n_actions)) 
     for s, a in s_a_pair:
       for s_end in range(n_states):
         reward = r_weights.transpose() @ state_features[s]
         za[s, a] += trans_mat[s, a, s_end] * np.exp(reward) * zs[s_end]
       zs = za.sum(axis=1)
     
-  policy = 
+  policy = za / (zs.reshape(-1, 1))
 
   return policy
 
@@ -152,9 +151,45 @@ def calcExpectedStateFreq(trans_mat, horizon, start_dist, policy):
   n_states = np.shape(trans_mat)[0]
   n_actions = np.shape(trans_mat)[1]
   state_freq = np.zeros(n_states)
+  non_terminal_set = set(range(n_states)) - set(term_index)
+  
+  s_a_pair = product(non_terminal_set, range(n_actions))
+
+  d_time = np.zeros((n_states, horizon))
+  d_time[:,0] = np.copy(start_dist)
+
+  for i in range(1, horizon):
+    for s_end in range(n_states):
+      for s, a in s_a_pair:
+        d_time[s_end, i] = d_time[s, i - 1] * policy[s, a] * trans_mat[s, a, s_end]
+  
+  state_freq = np.copy(d_time.sum(axis=1))
+
   return state_freq
   
 
+def calculate_feature_expectation(state_features, demos):
+  n_states, n_features = state_features.shape
+  f_exp = np.zeros(n_features)
+
+  for d in demos:
+    for s in d:
+      f_exp += state_features[s, :]
+    
+  f_exp = f_exp / len(demos)
+  return f_exp
+      
+
+def initialize_start_dist(n_states, demos):
+  prob = np.zeros(n_states)
+  
+  for d in demos:
+    prob[d[0]] += 1.0
+
+  prob = prob / len(demos)
+  assert(prob.sum() == 1.0)
+
+  return prob
 
 def maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon, learning_rate, term_index):
   """
@@ -176,6 +211,12 @@ def maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon,
   
   n_features = np.shape(state_features)[1]
   r_weights = np.zeros(n_features)
+  n_states = np.shape(trans_mat)[0]
+  
+  f_exp = calculate_feature_expectation(state_features, demos)
+
+
+
   return r_weights
   
  
