@@ -6,7 +6,31 @@ from matplotlib import cm
 import math
 from itertools import product
 
-        
+def linear_decay(k):
+  lr0 = 0.2
+  decay_rate = learning_rate
+  decay_steps = 1
+
+  return lr0 / (1.0 + decay_rate * np.floor(k / decay_steps))
+
+class Optimizer():
+    def __init__(self, lr):
+        super().__init__()
+        self.lr = lr
+        self.k = 0
+        self.params = None
+
+    def reset(self, input_params):
+        self.k = 0
+        self.params = input_params
+
+    def step(self, grad, *args, **kwargs):
+        lr = self.lr if not callable(self.lr) else self.lr(self.k)
+        self.k += 1
+
+        self.params += lr * grad
+
+
 def build_trans_mat_gridworld():
   # 5x5 gridworld laid out like:
   # 0  1  2  3  4
@@ -214,6 +238,19 @@ def maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon,
   n_states = np.shape(trans_mat)[0]
   
   f_exp = calculate_feature_expectation(state_features, demos)
+  start_dist = initialize_start_dist(n_states, demos)
+  omega = np.ones(n_features) * 1.0
+  delta = np.inf
+
+  optim = Optimizer(lr=learning_rate)
+  optim.reset(omega) 
+
+  converge_threshold = 1e-4
+  while delta > converge_threshold:
+    omega_old = omega.copy()
+    reward = state_features.dot(omega)
+    
+  
 
 
 
