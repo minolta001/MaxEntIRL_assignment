@@ -149,6 +149,7 @@ def calcMaxEntPolicy(trans_mat, horizon, r_weights, state_features, term_index):
     for s, a in s_a_pair:
       for s_end in range(n_states):
         reward = r_weights.transpose() @ state_features[s]
+
         za[s, a] += trans_mat[s, a, s_end] * np.exp(reward) * zs[s_end]
       zs = za.sum(axis=1)
     
@@ -239,7 +240,8 @@ def maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon,
   
   f_exp = calculate_feature_expectation(state_features, demos)
   start_dist = initialize_start_dist(n_states, demos)
-  omega = np.ones(n_features) * 1.0
+  #omega = np.ones(n_features) * 1.0 
+  omega = seed_weights.copy()
   delta = np.inf
 
   optim = Optimizer(lr=learning_rate)
@@ -248,14 +250,21 @@ def maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon,
   converge_threshold = 1e-4
   while delta > converge_threshold:
     omega_old = omega.copy()
-    reward = state_features.dot(omega)
-    
-    policy = calcMaxEntPolicy(trans_mat=trans_mat, horizon=horizon, r_weights=)
+
+    #r_weights = state_features.dot(omega)
+    r_weights = omega.copy()
+
+    policy = calcMaxEntPolicy(trans_mat=trans_mat, horizon=horizon, r_weights=r_weights, state_features=state_features, term_index=term_index)
     exp_state_freq = calcExpectedStateFreq(trans_mat=trans_mat, horizon=horizon, start_dist=start_dist, policy=policy)
-  
+    
+    grad = f_exp - state_features.T.dot(exp_state_freq)
+    optim.step(grad)
+    omega = optim.params.copy()
+    delta = np.max(np.abs(omega_old - omega)) 
 
 
-
+  #r_weights = state_features.dot(omega)
+  r_weights = omega.copy()
   return r_weights
   
  
