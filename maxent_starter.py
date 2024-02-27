@@ -250,6 +250,8 @@ def maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon,
     omega_old = omega.copy()
     reward = state_features.dot(omega)
     
+    policy = calcMaxEntPolicy(trans_mat=trans_mat, horizon=horizon, r_weights=)
+    exp_state_freq = calcExpectedStateFreq(trans_mat=trans_mat, horizon=horizon, start_dist=start_dist, policy=policy)
   
 
 
