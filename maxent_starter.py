@@ -6,12 +6,7 @@ from matplotlib import cm
 import math
 from itertools import product
 
-def linear_decay(k):
-  lr0 = 0.2
-  decay_rate = learning_rate
-  decay_steps = 1
-
-  return lr0 / (1.0 + decay_rate * np.floor(k / decay_steps))
+np.seterr(divide='ignore', invalid='ignore')
 
 class Optimizer():
     def __init__(self, lr):
@@ -29,6 +24,7 @@ class Optimizer():
         self.k += 1
 
         self.params += lr * grad
+        self.params = self.params / self.params.sum()
 
 
 def build_trans_mat_gridworld():
@@ -41,6 +37,7 @@ def build_trans_mat_gridworld():
   # where 24 is a goal state that always transitions to a 
   # special zero-reward terminal state (25) with no available actions
   trans_mat = np.zeros((26,4,26))
+  #trans_mat = np.zeros((25, 4, 25))
   
   # NOTE: the following iterations only happen for states 0-23.
   # This means terminal state 25 has zero probability to transition to any state, 
@@ -76,7 +73,7 @@ def build_trans_mat_gridworld():
 
   # Finally, goal state always goes to zero reward terminal state
   for a in range(4):
-    trans_mat[24,a,25] = 1  
+    trans_mat[24,a,25] = 1
       
   return trans_mat
 
@@ -134,26 +131,28 @@ def calcMaxEntPolicy(trans_mat, horizon, r_weights, state_features, term_index):
   
   return: an S x A policy in which each entry is the probability of taking action a in state s
   """
-  n_states = np.shape(trans_mat)[0] # num of states
+  n_states = np.shape(trans_mat)[0]# num of states
   n_actions = np.shape(trans_mat)[1]  # num of actions
   policy = np.zeros((n_states,n_actions)) 
 
-  zs = np.zeros(n_states)
-  zs[term_index] = 1.0
+  zs = np.zeros(n_states)   # 26 states
 
-  s_a_pair = product(range(n_states), range(n_actions)) 
+  s_a_pair = [(s, a) for s, a in product(range(n_states - 1), range(n_actions))]
 
+  zs[term_index] = 1.0    
   for _ in range (horizon):
     za = np.zeros((n_states, n_actions))
-
-    for s, a in s_a_pair:
+    for (s_from, a) in s_a_pair:
       for s_end in range(n_states):
-        reward = r_weights.transpose() @ state_features[s]
+        reward = state_features[s_from].dot(r_weights)
+        za[s_from, a] += trans_mat[s_from, a, s_end] * np.exp(reward) * zs[s_end]
+        #if(s_end == 24 and s_from == 23):
+          #print(za[s_from])
+      
+    zs = za.sum(axis=1)
+    zs[term_index] = 1.0
 
-        za[s, a] += trans_mat[s, a, s_end] * np.exp(reward) * zs[s_end]
-      zs = za.sum(axis=1)
-    
-  policy = za / (zs.reshape(-1, 1))
+  policy = za / zs.reshape(-1, 1)
 
   return policy
 
@@ -174,9 +173,10 @@ def calcExpectedStateFreq(trans_mat, horizon, start_dist, policy):
   """
   
   n_states = np.shape(trans_mat)[0]
+
   n_actions = np.shape(trans_mat)[1]
   state_freq = np.zeros(n_states)
-  non_terminal_set = set(range(n_states)) - set(term_index)
+  non_terminal_set = set(range(n_states)) - set([term_index])
   
   s_a_pair = product(non_terminal_set, range(n_actions))
 
@@ -240,31 +240,34 @@ def maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon,
   
   f_exp = calculate_feature_expectation(state_features, demos)
   start_dist = initialize_start_dist(n_states, demos)
+
   #omega = np.ones(n_features) * 1.0 
-  omega = seed_weights.copy()
+  theta = seed_weights.copy()
   delta = np.inf
 
   optim = Optimizer(lr=learning_rate)
-  optim.reset(omega) 
+  optim.reset(theta) 
 
   converge_threshold = 1e-4
-  while delta > converge_threshold:
-    omega_old = omega.copy()
-
+  i = 0
+  while i < n_epochs:
+    #omega_old = omega.copy()
     #r_weights = state_features.dot(omega)
-    r_weights = omega.copy()
+    r_weights = theta.copy()
+    
 
     policy = calcMaxEntPolicy(trans_mat=trans_mat, horizon=horizon, r_weights=r_weights, state_features=state_features, term_index=term_index)
     exp_state_freq = calcExpectedStateFreq(trans_mat=trans_mat, horizon=horizon, start_dist=start_dist, policy=policy)
     
     grad = f_exp - state_features.T.dot(exp_state_freq)
     optim.step(grad)
-    omega = optim.params.copy()
-    delta = np.max(np.abs(omega_old - omega)) 
+    theta = optim.params.copy()
+    #delta = np.max(np.abs(omega_old - omega)) 
+    i += 1
 
 
   #r_weights = state_features.dot(omega)
-  r_weights = omega.copy()
+  r_weights = theta.copy()
   return r_weights
   
  
@@ -276,12 +279,13 @@ if __name__ == '__main__':
   state_features = build_state_features_gridworld() 
   demos = [[4,9,14,19,24,25],[3,8,13,18,19,24,25],[2,1,0,5,10,15,20,21,22,23,24,25],[1,0,5,10,11,16,17,22,23,24,25]]
   seed_weights = np.zeros(4)
+
   term_index = 25
   
   # Parameters
-  n_epochs = 25
+  n_epochs = 100
   horizon = 15
-  learning_rate = 0.1
+  learning_rate = 0.001
   
   # Main algorithm call
   r_weights = maxEntIRL(trans_mat, state_features, demos, seed_weights, n_epochs, horizon, learning_rate, term_index)
@@ -291,7 +295,7 @@ if __name__ == '__main__':
   for s_i in range(25):
     reward_fxn.append( np.dot(r_weights, state_features[s_i]) )
   reward_fxn = np.reshape(reward_fxn, (5,5))
-  
+  print(reward_fxn)
   # Plot reward function
   fig = plt.figure()
   ax = fig.add_subplot(111, projection='3d')
